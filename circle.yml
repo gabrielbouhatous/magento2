@@ -1,9 +1,29 @@
-machine:
-  php:
-    version: 7.1
-dependencies:
-   pre:
-     - ./vendor/bin/phpunit -c dev/tests/unit/phpunit.xml.dist
-   post:
-     - cd tests/unit
-     - phpunit
+version: 2
+jobs: # a collection of steps
+  build:
+    docker: # run the steps with Docker
+      - image: getpagespeed/m2builder:latest
+    working_directory: /sources # directory where steps will run
+    steps: # a set of executable commands
+      - checkout
+      - run:
+          name: "Install Magento plugin dependencies (vendor)"
+          command: composer install
+      - run:
+          name: "Compile PHP stuff (generated)"
+          command: php -d memory_limit=-1 bin/magento setup:di:compile
+      - run:
+          name: "Compile static (pub/static)"
+          command: php -d memory_limit=-1 bin/magento setup:static-content:deploy -f en_US
+      - persist_to_workspace:
+          root: /sources
+          paths:
+            - "vendor" 
+            - "generated"
+            - "pub/static"
+            - "var/view_preprocessed"
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+      - build
