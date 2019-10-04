@@ -1,0 +1,9 @@
+machine:
+  php:
+    version: 7.1
+dependencies:
+   pre:
+     - ./vendor/bin/phpunit -c dev/tests/unit/phpunit.xml.dist
+   post:
+     - cd tests/unit
+     - phpunit
