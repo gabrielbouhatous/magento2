@@ -10,6 +10,9 @@ jobs: # a collection of steps
           name: "Install Magento plugin dependencies (vendor)"
           command: composer install
       - run:
+          name: "Enable modules"
+          command: php -d memory_limit=-1 bin/magento module:enable --all
+      - run:
           name: "Compile PHP stuff (generated)"
           command: php -d memory_limit=-1 bin/magento setup:di:compile
       - run:
